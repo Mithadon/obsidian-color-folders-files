@@ -8,6 +8,31 @@ export class ColorSettingsTab extends PluginSettingTab {
     constructor(app: App, private plugin: ColorFolderPluginInterface) {
         super(app, plugin as any);
         this.resetPresetStyle();
+        this.syncPresetOrder();
+    }
+
+    private syncPresetOrder() {
+        // Get all preset names
+        const allPresets = Object.keys(this.plugin.settings.presets);
+        
+        // Initialize presetOrder if it doesn't exist
+        if (!this.plugin.settings.presetOrder) {
+            this.plugin.settings.presetOrder = [];
+        }
+
+        // Add any missing presets to the order
+        allPresets.forEach(presetName => {
+            if (!this.plugin.settings.presetOrder.includes(presetName)) {
+                this.plugin.settings.presetOrder.push(presetName);
+            }
+        });
+
+        // Remove any presets from the order that no longer exist
+        this.plugin.settings.presetOrder = this.plugin.settings.presetOrder.filter(
+            name => allPresets.includes(name)
+        );
+
+        this.plugin.saveSettings();
     }
 
     resetPresetStyle() {
@@ -18,31 +43,66 @@ export class ColorSettingsTab extends PluginSettingTab {
         const {containerEl} = this;
         containerEl.empty();
 
+        // Ensure presetOrder is synced before displaying
+        this.syncPresetOrder();
+
         // Create new preset section
         new Setting(containerEl).setHeading().setName('Create new preset');
         
         const previewEl = containerEl.createDiv('preview-item');
         previewEl.setText('Preview');
         
-        // Background color
-        new Setting(containerEl)
-            .setName('Background color')
-            .addColorPicker(color => color
-                .setValue(this.presetStyle.backgroundColor || '#ffffff')
-                .onChange(value => {
-                    this.presetStyle.backgroundColor = value;
-                    this.updatePreview(previewEl);
-                }));
+        // Background color with hex input
+        const bgColorSetting = new Setting(containerEl).setName('Background color');
+        const bgColorContainer = bgColorSetting.controlEl.createDiv('color-container');
+        
+        let bgHexInput: HTMLInputElement;
+        bgColorSetting.addColorPicker(color => color
+            .setValue(this.presetStyle.backgroundColor || '#ffffff')
+            .onChange(value => {
+                this.presetStyle.backgroundColor = value;
+                bgHexInput.value = value;
+                this.updatePreview(previewEl);
+            }));
 
-        // Text color
-        new Setting(containerEl)
-            .setName('Text color')
-            .addColorPicker(color => color
-                .setValue(this.presetStyle.textColor || '#000000')
-                .onChange(value => {
-                    this.presetStyle.textColor = value;
-                    this.updatePreview(previewEl);
-                }));
+        bgHexInput = bgColorContainer.createEl('input', {
+            type: 'text',
+            cls: 'color-hex-input',
+            value: this.presetStyle.backgroundColor || '#ffffff'
+        });
+        bgHexInput.addEventListener('change', () => {
+            const value = bgHexInput.value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                this.presetStyle.backgroundColor = value;
+                this.updatePreview(previewEl);
+            }
+        });
+
+        // Text color with hex input
+        const textColorSetting = new Setting(containerEl).setName('Text color');
+        const textColorContainer = textColorSetting.controlEl.createDiv('color-container');
+        
+        let textHexInput: HTMLInputElement;
+        textColorSetting.addColorPicker(color => color
+            .setValue(this.presetStyle.textColor || '#000000')
+            .onChange(value => {
+                this.presetStyle.textColor = value;
+                textHexInput.value = value;
+                this.updatePreview(previewEl);
+            }));
+
+        textHexInput = textColorContainer.createEl('input', {
+            type: 'text',
+            cls: 'color-hex-input',
+            value: this.presetStyle.textColor || '#000000'
+        });
+        textHexInput.addEventListener('change', () => {
+            const value = textHexInput.value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                this.presetStyle.textColor = value;
+                this.updatePreview(previewEl);
+            }
+        });
 
         // Bold toggle
         new Setting(containerEl)
@@ -101,6 +161,9 @@ export class ColorSettingsTab extends PluginSettingTab {
                             if (!shouldOverwrite) return;
                         }
                         this.plugin.settings.presets[presetName] = { ...this.presetStyle };
+                        if (!this.plugin.settings.presetOrder.includes(presetName)) {
+                            this.plugin.settings.presetOrder.push(presetName);
+                        }
                         await this.plugin.saveSettings();
                         textComponent.setValue('');
                         this.display();
@@ -111,12 +174,66 @@ export class ColorSettingsTab extends PluginSettingTab {
         // Existing presets section
         new Setting(containerEl).setHeading().setName('Existing presets');
         
-        Object.entries(this.plugin.settings.presets).forEach(([name, preset]) => {
-            const presetContainer = containerEl.createDiv('preset-container');
+        const presetsContainer = containerEl.createDiv('presets-container');
+
+        // Create preset elements in order
+        this.plugin.settings.presetOrder.forEach((name, index) => {
+            const preset = this.plugin.settings.presets[name];
+            if (!preset) return; // Skip if preset was deleted
+
+            const presetContainer = presetsContainer.createDiv('preset-container');
+            presetContainer.setAttribute('draggable', 'true');
+            (presetContainer as HTMLElement).dataset.presetName = name;
+            
+            // Handle drag events
+            presetContainer.addEventListener('dragstart', (e: DragEvent) => {
+                if (e.dataTransfer) {
+                    e.dataTransfer.setData('text/plain', name);
+                    presetContainer.addClass('dragging');
+                }
+            });
+
+            presetContainer.addEventListener('dragend', () => {
+                presetContainer.removeClass('dragging');
+            });
+
+            presetContainer.addEventListener('dragover', (e: DragEvent) => {
+                e.preventDefault();
+                const dragging = presetsContainer.querySelector('.dragging');
+                if (!dragging) return;
+                
+                const siblings = Array.from(presetsContainer.querySelectorAll('.preset-container:not(.dragging)'));
+                const nextSibling = siblings.find(sibling => {
+                    const rect = sibling.getBoundingClientRect();
+                    const offset = e.clientY - rect.top - rect.height / 2;
+                    return offset < 0;
+                });
+
+                if (nextSibling) {
+                    presetsContainer.insertBefore(dragging, nextSibling);
+                } else {
+                    presetsContainer.appendChild(dragging);
+                }
+            });
+
+            presetContainer.addEventListener('drop', async (e: DragEvent) => {
+                e.preventDefault();
+                if (e.dataTransfer) {
+                    const draggedName = e.dataTransfer.getData('text/plain');
+                    const containers = Array.from(presetsContainer.querySelectorAll('.preset-container')) as HTMLElement[];
+                    const newOrder = containers.map(container => container.dataset.presetName).filter((name): name is string => name !== undefined);
+                    
+                    this.plugin.settings.presetOrder = newOrder;
+                    await this.plugin.saveSettings();
+                }
+            });
             
             const previewEl = presetContainer.createDiv('preview-item');
             previewEl.setText(name);
             this.updatePreview(previewEl, preset);
+
+            const dragHandle = presetContainer.createDiv('drag-handle');
+            dragHandle.innerHTML = '⋮⋮';
 
             new Setting(presetContainer)
                 .addButton(btn => btn
@@ -124,10 +241,78 @@ export class ColorSettingsTab extends PluginSettingTab {
                     .setTooltip('Delete preset')
                     .onClick(async () => {
                         delete this.plugin.settings.presets[name];
+                        this.plugin.settings.presetOrder = this.plugin.settings.presetOrder.filter(n => n !== name);
                         await this.plugin.saveSettings();
                         this.display();
                         new Notice(`Preset "${name}" deleted`);
                     }));
+        });
+
+        // Import/Export section
+        new Setting(containerEl).setHeading().setName('Import/Export Settings');
+        
+        const importExportContainer = containerEl.createDiv('settings-import-export');
+        
+        // Import button
+        const importButton = importExportContainer.createEl('button', {
+            text: 'Import Settings'
+        });
+        importButton.addEventListener('click', async () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = async () => {
+                const file = input.files?.[0];
+                if (file) {
+                    try {
+                        const text = await file.text();
+                        const settings = JSON.parse(text);
+                        
+                        // Validate settings structure
+                        if (settings && 
+                            typeof settings === 'object' && 
+                            'styles' in settings && 
+                            'presets' in settings) {
+                            this.plugin.settings = settings;
+                            // Sync presetOrder with imported settings
+                            this.syncPresetOrder();
+                            await this.plugin.saveSettings();
+                            this.display();
+                            new Notice('Settings imported successfully');
+                        } else {
+                            new Notice('Invalid settings file format');
+                        }
+                    } catch (e) {
+                        console.error('Error importing settings:', e);
+                        new Notice('Error importing settings');
+                    }
+                }
+            };
+            
+            input.click();
+        });
+
+        // Export button
+        const exportButton = importExportContainer.createEl('button', {
+            text: 'Export Settings'
+        });
+        exportButton.addEventListener('click', () => {
+            const settingsJson = JSON.stringify(this.plugin.settings, null, 2);
+            const blob = new Blob([settingsJson], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `color-folders-files-settings-v${this.plugin.manifest.version}.json`;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Cleanup
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 0);
         });
     }
 

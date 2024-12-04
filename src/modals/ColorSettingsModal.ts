@@ -35,29 +35,61 @@ export class ColorSettingsModal extends Modal {
         this.previewEl.setText(this.file.name);
         this.updatePreview();
 
-        // Background color
-        new Setting(contentEl)
-            .setName('Background color')
-            .addColorPicker(color => {
-                this.bgColorPicker = color;
-                color.setValue(this.style.backgroundColor || '#ffffff')
-                    .onChange(value => {
-                        this.style.backgroundColor = value;
-                        this.updatePreview();
-                    });
-            });
+        // Background color with hex input
+        const bgColorSetting = new Setting(contentEl).setName('Background color');
+        const bgColorContainer = bgColorSetting.controlEl.createDiv('color-container');
+        
+        bgColorSetting.addColorPicker(color => {
+            this.bgColorPicker = color;
+            color.setValue(this.style.backgroundColor || '#ffffff')
+                .onChange(value => {
+                    this.style.backgroundColor = value;
+                    bgHexInput.value = value;
+                    this.updatePreview();
+                });
+        });
 
-        // Text color
-        new Setting(contentEl)
-            .setName('Text color')
-            .addColorPicker(color => {
-                this.textColorPicker = color;
-                color.setValue(this.style.textColor || '#000000')
-                    .onChange(value => {
-                        this.style.textColor = value;
-                        this.updatePreview();
-                    });
-            });
+        const bgHexInput = bgColorContainer.createEl('input', {
+            type: 'text',
+            cls: 'color-hex-input',
+            value: this.style.backgroundColor || '#ffffff'
+        });
+        bgHexInput.addEventListener('change', () => {
+            const value = bgHexInput.value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                this.style.backgroundColor = value;
+                this.bgColorPicker.setValue(value);
+                this.updatePreview();
+            }
+        });
+
+        // Text color with hex input
+        const textColorSetting = new Setting(contentEl).setName('Text color');
+        const textColorContainer = textColorSetting.controlEl.createDiv('color-container');
+        
+        textColorSetting.addColorPicker(color => {
+            this.textColorPicker = color;
+            color.setValue(this.style.textColor || '#000000')
+                .onChange(value => {
+                    this.style.textColor = value;
+                    textHexInput.value = value;
+                    this.updatePreview();
+                });
+        });
+
+        const textHexInput = textColorContainer.createEl('input', {
+            type: 'text',
+            cls: 'color-hex-input',
+            value: this.style.textColor || '#000000'
+        });
+        textHexInput.addEventListener('change', () => {
+            const value = textHexInput.value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                this.style.textColor = value;
+                this.textColorPicker.setValue(value);
+                this.updatePreview();
+            }
+        });
 
         // Bold toggle
         new Setting(contentEl)
@@ -165,26 +197,39 @@ export class ColorSettingsModal extends Modal {
         // Buttons section
         const buttonSection = contentEl.createDiv('button-section');
         
-        new Setting(buttonSection)
-            .addButton(button => button
-                .setButtonText('Reset')
-                .onClick(() => {
-                    this.style = { ...DEFAULT_STYLE };
-                    this.updateControls();
-                    this.updatePreview();
-                }))
-            .addButton(button => button
-                .setButtonText('Apply')
-                .setCta()
-                .onClick(async () => {
-                    await this.saveChanges();
-                    new Notice('Changes applied');
-                }))
-            .addButton(button => button
-                .setButtonText('Close')
-                .onClick(() => {
-                    this.close();
-                }));
+        const removeButton = buttonSection.createEl('button', {
+            text: 'Remove styling'
+        });
+        removeButton.addEventListener('click', async () => {
+            delete this.plugin.settings.styles[this.file.path];
+            await this.plugin.saveSettings();
+            new Notice('Styling removed');
+        });
+
+        const resetButton = buttonSection.createEl('button', {
+            text: 'Reset'
+        });
+        resetButton.addEventListener('click', () => {
+            this.style = { ...DEFAULT_STYLE };
+            this.updateControls();
+            this.updatePreview();
+        });
+
+        const applyButton = buttonSection.createEl('button', {
+            text: 'Apply',
+            cls: 'mod-cta'
+        });
+        applyButton.addEventListener('click', async () => {
+            await this.saveChanges();
+            new Notice('Changes applied');
+        });
+
+        const closeButton = buttonSection.createEl('button', {
+            text: 'Close'
+        });
+        closeButton.addEventListener('click', () => {
+            this.close();
+        });
     }
 
     updateControls() {

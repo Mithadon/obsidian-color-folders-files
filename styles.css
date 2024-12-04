@@ -1,7 +1,7 @@
 /* Modal styles */
 .modal.color-folders-files-modal {
-    width: 330px !important;
-    max-width: 330px !important;
+    width: 350px !important;
+    max-width: 350px !important;
     max-height: 80vh !important;
 }
 
@@ -44,17 +44,34 @@
     gap: var(--size-4-2);
 }
 
-/* Color picker styles */
-.modal.color-folders-files-modal .color-picker-wrapper {
-    margin-right: var(--size-4-2);
+/* Color picker and hex input styles */
+.color-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.color-hex-input {
+    width: 80px;
+    height: 24px;
+    padding: 0 4px;
+    border-radius: var(--radius-s);
+    border: 1px solid var(--background-modifier-border);
+    background-color: var(--background-primary);
+    color: var(--text-normal);
+    font-size: var(--font-ui-smaller);
+    font-family: var(--font-monospace);
+}
+
+.color-hex-input:focus {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
 }
 
 /* Button styles */
 .modal.color-folders-files-modal button.mod-cta {
     background-color: var(--interactive-accent);
     color: var(--text-on-accent);
-    font-weight: var(--font-medium);
-    padding: var(--size-4-1) var(--size-4-3);
 }
 
 .modal.color-folders-files-modal button.mod-cta:hover {
@@ -114,7 +131,21 @@
     margin-top: 20px;
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
+}
+
+.modal.color-folders-files-modal .button-section button {
+    padding: 6px 12px;
+    border-radius: var(--radius-s);
+    font-size: var(--font-ui-small);
+    background-color: var(--interactive-normal);
+    border: none;
+    color: var(--text-normal);
+    cursor: pointer;
+}
+
+.modal.color-folders-files-modal .button-section button:hover {
+    background-color: var(--interactive-hover);
 }
 
 /* Preset save section */
@@ -135,4 +166,93 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+}
+
+/* Settings tab preset styles */
+.presets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.preset-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px;
+    cursor: grab;
+    border-radius: var(--radius-s);
+    transition: background-color 0.15s ease;
+}
+
+.preset-container:hover {
+    background-color: var(--background-secondary);
+}
+
+.preset-container.dragging {
+    opacity: 0.5;
+    background-color: var(--background-secondary);
+}
+
+.drag-handle {
+    color: var(--text-muted);
+    font-family: var(--font-monospace);
+    user-select: none;
+    cursor: grab;
+    padding: 0 4px;
+}
+
+/* Only apply fixed width to settings tab preview items */
+.vertical-tab-content .preview-item {
+    display: inline-block;
+    width: 300px;
+    padding: 4px 12px;
+    border-radius: var(--radius-s);
+    font-size: var(--font-ui-small);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preset-container .setting-item {
+    margin: 0;
+    padding: 0;
+    flex-grow: 0;
+    border: none;
+}
+
+.preset-container .setting-item-control {
+    margin: 0;
+}
+
+.preset-container button {
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: var(--radius-s);
+}
+
+.preset-container button:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+/* Import/Export buttons */
+.settings-import-export {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+}
+
+.settings-import-export button {
+    flex: 1;
+    padding: var(--size-4-1) var(--size-4-3);
+    border-radius: var(--radius-s);
+    background-color: var(--interactive-normal);
+    color: var(--text-normal);
+    font-weight: var(--font-medium);
+}
+
+.settings-import-export button:hover {
+    background-color: var(--interactive-hover);
 }

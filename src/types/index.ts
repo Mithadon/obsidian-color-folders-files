@@ -5,6 +5,7 @@ export interface ColorFolderSettings {
     presets: {
         [name: string]: StyleSettings
     };
+    presetOrder: string[];
 }
 
 export interface StyleSettings {
@@ -19,6 +20,9 @@ export interface StyleSettings {
 
 export interface ColorFolderPluginInterface {
     settings: ColorFolderSettings;
+    manifest: {
+        version: string;
+    };
     saveSettings(): Promise<void>;
     confirmOverwritePreset(name: string): Promise<boolean>;
 }

@@ -1,12 +1,14 @@
-import { App, PluginSettingTab, Setting, Notice, TextComponent } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting, Notice, TextComponent } from 'obsidian';
 import { StyleSettings, ColorFolderPluginInterface } from '../types';
 import { DEFAULT_STYLE } from '../constants';
 
 export class ColorSettingsTab extends PluginSettingTab {
     private presetStyle: StyleSettings;
+    private plugin: ColorFolderPluginInterface;
 
-    constructor(app: App, private plugin: ColorFolderPluginInterface) {
-        super(app, plugin as any);
+    constructor(app: App, plugin: Plugin & ColorFolderPluginInterface) {
+        super(app, plugin);
+        this.plugin = plugin;
         this.resetPresetStyle();
         this.syncPresetOrder();
     }
@@ -50,7 +52,7 @@ export class ColorSettingsTab extends PluginSettingTab {
         new Setting(containerEl).setHeading().setName('Create new preset');
         
         const previewEl = containerEl.createDiv('preview-item');
-        previewEl.setText('Preview');
+        previewEl.createSpan().setText('Preview');
         
         // Background color with hex input
         const bgColorSetting = new Setting(containerEl).setName('Background color');
@@ -177,13 +179,13 @@ export class ColorSettingsTab extends PluginSettingTab {
         const presetsContainer = containerEl.createDiv('presets-container');
 
         // Create preset elements in order
-        this.plugin.settings.presetOrder.forEach((name, index) => {
+        this.plugin.settings.presetOrder.forEach((name) => {
             const preset = this.plugin.settings.presets[name];
             if (!preset) return; // Skip if preset was deleted
 
             const presetContainer = presetsContainer.createDiv('preset-container');
             presetContainer.setAttribute('draggable', 'true');
-            (presetContainer as HTMLElement).dataset.presetName = name;
+            presetContainer.dataset.presetName = name;
             
             // Handle drag events
             presetContainer.addEventListener('dragstart', (e: DragEvent) => {
@@ -219,7 +221,6 @@ export class ColorSettingsTab extends PluginSettingTab {
             presetContainer.addEventListener('drop', async (e: DragEvent) => {
                 e.preventDefault();
                 if (e.dataTransfer) {
-                    const draggedName = e.dataTransfer.getData('text/plain');
                     const containers = Array.from(presetsContainer.querySelectorAll('.preset-container')) as HTMLElement[];
                     const newOrder = containers.map(container => container.dataset.presetName).filter((name): name is string => name !== undefined);
                     
@@ -229,11 +230,12 @@ export class ColorSettingsTab extends PluginSettingTab {
             });
             
             const previewEl = presetContainer.createDiv('preview-item');
-            previewEl.setText(name);
+            previewEl.createSpan().setText(name);
             this.updatePreview(previewEl, preset);
 
             const dragHandle = presetContainer.createDiv('drag-handle');
-            dragHandle.innerHTML = '⋮⋮';
+            const handleIcon = dragHandle.createSpan();
+            handleIcon.setText('⋮⋮');
 
             new Setting(presetContainer)
                 .addButton(btn => btn
@@ -317,10 +319,16 @@ export class ColorSettingsTab extends PluginSettingTab {
     }
 
     private updatePreview(previewEl: HTMLElement, style: StyleSettings = this.presetStyle) {
-        if (style.backgroundColor) previewEl.style.backgroundColor = style.backgroundColor;
-        if (style.textColor) previewEl.style.color = style.textColor;
-        previewEl.style.fontWeight = style.isBold ? 'bold' : 'normal';
-        previewEl.style.fontStyle = style.isItalic ? 'italic' : 'normal';
-        if (typeof style.opacity === 'number') previewEl.style.opacity = style.opacity.toString();
+        // Reset classes
+        previewEl.removeClass('is-bold', 'is-italic');
+        
+        // Apply classes based on style
+        if (style.isBold) previewEl.addClass('is-bold');
+        if (style.isItalic) previewEl.addClass('is-italic');
+
+        // Set CSS variables for colors and opacity
+        previewEl.style.setProperty('--bg-color', style.backgroundColor || null);
+        previewEl.style.setProperty('--text-color', style.textColor || null);
+        previewEl.style.setProperty('--opacity', style.opacity?.toString() || null);
     }
 }

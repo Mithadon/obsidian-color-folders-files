@@ -17,10 +17,10 @@ export class ColorSettingsModal extends Modal {
     constructor(
         app: App,
         private plugin: ColorFolderPluginInterface,
-        private file: any
+        private filePath: string
     ) {
         super(app);
-        this.style = { ...(plugin.settings.styles[file.path] || {}) };
+        this.style = { ...(plugin.settings.styles[filePath] || {}) };
     }
 
     onOpen() {
@@ -32,7 +32,8 @@ export class ColorSettingsModal extends Modal {
         // Preview section
         const previewSection = contentEl.createDiv('preview-section');
         this.previewEl = previewSection.createDiv('preview-item');
-        this.previewEl.setText(this.file.name);
+        const fileName = this.filePath.split('/').pop() || this.filePath;
+        this.previewEl.createSpan().setText(fileName);
         this.updatePreview();
 
         // Background color with hex input
@@ -201,9 +202,10 @@ export class ColorSettingsModal extends Modal {
             text: 'Remove styling'
         });
         removeButton.addEventListener('click', async () => {
-            delete this.plugin.settings.styles[this.file.path];
+            delete this.plugin.settings.styles[this.filePath];
             await this.plugin.saveSettings();
             new Notice('Styling removed');
+            this.close();
         });
 
         const resetButton = buttonSection.createEl('button', {
@@ -222,6 +224,7 @@ export class ColorSettingsModal extends Modal {
         applyButton.addEventListener('click', async () => {
             await this.saveChanges();
             new Notice('Changes applied');
+            this.close();
         });
 
         const closeButton = buttonSection.createEl('button', {
@@ -243,15 +246,21 @@ export class ColorSettingsModal extends Modal {
     }
 
     updatePreview() {
-        if (this.style.backgroundColor) this.previewEl.style.backgroundColor = this.style.backgroundColor;
-        if (this.style.textColor) this.previewEl.style.color = this.style.textColor;
-        this.previewEl.style.fontWeight = this.style.isBold ? 'bold' : 'normal';
-        this.previewEl.style.fontStyle = this.style.isItalic ? 'italic' : 'normal';
-        if (typeof this.style.opacity === 'number') this.previewEl.style.opacity = this.style.opacity.toString();
+        // Reset classes
+        this.previewEl.removeClass('is-bold', 'is-italic');
+        
+        // Apply classes based on style
+        if (this.style.isBold) this.previewEl.addClass('is-bold');
+        if (this.style.isItalic) this.previewEl.addClass('is-italic');
+
+        // Set CSS variables for colors and opacity
+        this.previewEl.style.setProperty('--bg-color', this.style.backgroundColor || null);
+        this.previewEl.style.setProperty('--text-color', this.style.textColor || null);
+        this.previewEl.style.setProperty('--opacity', this.style.opacity?.toString() || null);
     }
 
     async saveChanges() {
-        this.plugin.settings.styles[this.file.path] = this.style;
+        this.plugin.settings.styles[this.filePath] = this.style;
         await this.plugin.saveSettings();
     }
 

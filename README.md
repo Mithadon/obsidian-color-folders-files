@@ -5,7 +5,7 @@ Customize the appearance of folders and files in Obsidian through an easy-to-use
 The aim is to provide a more robust, customizeable, plugin-based solution inspired
 by .css snippet applications like https://github.com/CyanVoxel/Obsidian-Colored-Sidebar.
 
-Tested with Obsidian's default theme on Windows and Android. Compatible with the Iconize plugin, but the custom icon color must be re-applied if you want it to be different from the text.
+Tested with Obsidian's default theme on Windows and Android. Compatible with the Iconize plugin, which takes precedence (default icon colors are changed with text, while defined icon colors remain).
 
 New in version 1.2.0:
 - Added 'Remove styling' button

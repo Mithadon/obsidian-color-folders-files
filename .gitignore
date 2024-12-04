@@ -1,0 +1,18 @@
+# Build output
+main.js
+*.js.map
+data.json
+
+# Dependencies
+node_modules/
+
+# IDE
+.idea
+.vscode
+
+# OS
+.DS_Store
+Thumbs.db
+
+# npm
+package-lock.json

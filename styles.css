@@ -1,0 +1,120 @@
+/* Modal styles */
+.color-folders-files-modal {
+    max-width: 500px;
+}
+
+.color-folders-files-modal .preview-section,
+.color-folders-files-modal .preset-section {
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: var(--radius-m);
+    background-color: var(--background-secondary);
+    border: 1px solid var(--background-modifier-border);
+}
+
+.preview-item {
+    margin: 10px 0;
+    padding: 8px 12px;
+    border-radius: var(--radius-s);
+    font-size: var(--font-ui-small);
+    background-color: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    transition: all 0.2s ease;
+}
+
+.preset-container {
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: var(--radius-m);
+    background-color: var(--background-secondary);
+    border: 1px solid var(--background-modifier-border);
+}
+
+/* Input styles */
+.preset-name-input {
+    padding: var(--size-4-2);
+    border-radius: var(--radius-s);
+    background-color: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    color: var(--text-normal);
+    font-size: var(--font-ui-small);
+    width: 200px;
+}
+
+.preset-name-input:focus {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
+}
+
+/* Setting styles */
+.setting-item {
+    border-top: none;
+    padding: var(--size-4-2) 0;
+}
+
+.setting-item-control {
+    gap: var(--size-4-2);
+}
+
+/* Color picker styles */
+.color-picker-wrapper {
+    margin-right: var(--size-4-2);
+}
+
+/* Button styles */
+button.mod-cta {
+    background-color: var(--interactive-accent);
+    color: var(--text-on-accent);
+    font-weight: var(--font-medium);
+    padding: var(--size-4-1) var(--size-4-3);
+}
+
+button.mod-cta:hover {
+    background-color: var(--interactive-accent-hover);
+}
+
+/* Slider styles */
+.slider {
+    height: 4px;
+    background-color: var(--interactive-normal);
+    border-radius: var(--radius-s);
+}
+
+.slider::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--interactive-accent);
+    cursor: pointer;
+}
+
+/* Toggle styles */
+.checkbox-container {
+    padding: var(--size-4-1);
+}
+
+/* Dropdown styles */
+select {
+    padding: var(--size-4-1) var(--size-4-2);
+    border-radius: var(--radius-s);
+    background-color: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    color: var(--text-normal);
+    font-size: var(--font-ui-small);
+}
+
+select:focus {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
+}
+
+/* Notice styles */
+.notice {
+    background-color: var(--background-primary);
+    color: var(--text-normal);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-m);
+    padding: var(--size-4-2) var(--size-4-3);
+    margin: var(--size-4-2) 0;
+    box-shadow: var(--shadow-s);
+}

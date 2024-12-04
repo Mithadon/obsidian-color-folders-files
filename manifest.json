@@ -1,0 +1,11 @@
+{
+    "id": "color-folders-files",
+    "name": "Color Folders and Files",
+    "version": "1.0.0",
+    "minAppVersion": "1.4.0",
+    "description": "Customize the appearance of folders and files through a context menu with color picker and style options.",
+    "author": "Mithadon",
+    "authorUrl": "https://github.com/Mithadon",
+    "fundingUrl": "https://ko-fi.com/mithadon",
+    "isDesktopOnly": false
+}

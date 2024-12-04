@@ -326,9 +326,9 @@ export class ColorSettingsTab extends PluginSettingTab {
         if (style.isBold) previewEl.addClass('is-bold');
         if (style.isItalic) previewEl.addClass('is-italic');
 
-        // Set CSS variables for colors and opacity
-        previewEl.style.setProperty('--bg-color', style.backgroundColor || null);
-        previewEl.style.setProperty('--text-color', style.textColor || null);
-        previewEl.style.setProperty('--opacity', style.opacity?.toString() || null);
+        // Update CSS custom properties
+        previewEl.style.setProperty('--preview-bg-color', style.backgroundColor || null);
+        previewEl.style.setProperty('--preview-text-color', style.textColor || null);
+        previewEl.style.setProperty('--preview-opacity', style.opacity?.toString() || null);
     }
 }

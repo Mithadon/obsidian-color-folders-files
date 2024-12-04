@@ -43,16 +43,11 @@
     font-style: italic;
 }
 
-.preview-item[style*="--bg-color"] {
-    background-color: var(--bg-color) !important;
-}
-
-.preview-item[style*="--text-color"] {
-    color: var(--text-color) !important;
-}
-
-.preview-item[style*="--opacity"] {
-    opacity: var(--opacity) !important;
+/* Preview item custom properties */
+.preview-item {
+    background-color: var(--preview-bg-color, var(--background-primary));
+    color: var(--preview-text-color, var(--text-normal));
+    opacity: var(--preview-opacity, 1);
 }
 
 /* Setting styles */

@@ -5,6 +5,7 @@ import { DEFAULT_STYLE } from '../constants';
 export class ColorSettingsModal extends Modal {
     private style: StyleSettings;
     private previewEl: HTMLElement;
+    private styleEl: HTMLStyleElement;
     // Store control references
     private bgColorPicker: ColorComponent;
     private textColorPicker: ColorComponent;
@@ -26,12 +27,17 @@ export class ColorSettingsModal extends Modal {
     onOpen() {
         this.modalEl.addClass('color-folders-files-modal');
         
+        // Create style element for preview styles
+        this.styleEl = document.createElement('style');
+        document.head.appendChild(this.styleEl);
+        
         const {contentEl} = this;
         contentEl.empty();
 
         // Preview section
         const previewSection = contentEl.createDiv('preview-section');
         this.previewEl = previewSection.createDiv('preview-item');
+        this.previewEl.addClass('preview-style');
         const fileName = this.filePath.split('/').pop() || this.filePath;
         this.previewEl.createSpan().setText(fileName);
         this.updatePreview();
@@ -249,14 +255,17 @@ export class ColorSettingsModal extends Modal {
         // Reset classes
         this.previewEl.removeClass('is-bold', 'is-italic');
         
-        // Apply classes based on style
+        // Add style classes based on current settings
         if (this.style.isBold) this.previewEl.addClass('is-bold');
         if (this.style.isItalic) this.previewEl.addClass('is-italic');
 
-        // Set CSS variables for colors and opacity
-        this.previewEl.style.setProperty('--bg-color', this.style.backgroundColor || null);
-        this.previewEl.style.setProperty('--text-color', this.style.textColor || null);
-        this.previewEl.style.setProperty('--opacity', this.style.opacity?.toString() || null);
+        // Update the style element with dynamic styles
+        const css = `.preview-style {
+            ${this.style.backgroundColor ? `background-color: ${this.style.backgroundColor};` : ''}
+            ${this.style.textColor ? `color: ${this.style.textColor};` : ''}
+            ${this.style.opacity !== undefined ? `opacity: ${this.style.opacity};` : ''}
+        }`;
+        this.styleEl.textContent = css;
     }
 
     async saveChanges() {
@@ -265,6 +274,10 @@ export class ColorSettingsModal extends Modal {
     }
 
     onClose() {
+        // Clean up the style element
+        if (this.styleEl && this.styleEl.parentNode) {
+            this.styleEl.parentNode.removeChild(this.styleEl);
+        }
         this.modalEl.removeClass('color-folders-files-modal');
         const {contentEl} = this;
         contentEl.empty();

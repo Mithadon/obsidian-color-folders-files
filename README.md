@@ -7,7 +7,7 @@ by .css snippet applications like https://github.com/CyanVoxel/Obsidian-Colored-
 
 Tested with Obsidian's default theme on Windows. Compatible with the Iconize plugin, but the custom icon color must be re-applied if you want it to be different from the text.
 
-![Context Menu](res/context-menu.png)
+![Context Menu](res/contextual.png)
 ![Settings](res/settings.png)
 
 ## Features

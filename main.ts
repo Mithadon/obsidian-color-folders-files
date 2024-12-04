@@ -6,7 +6,13 @@ import {
     Menu, 
     TAbstractFile,
     Modal,
-    Notice
+    Notice,
+    MenuItem,
+    TextComponent,
+    ColorComponent,
+    ToggleComponent,
+    SliderComponent,
+    DropdownComponent
 } from 'obsidian';
 
 interface ColorFolderSettings {
@@ -21,8 +27,8 @@ interface ColorFolderSettings {
 interface StyleSettings {
     backgroundColor?: string;
     textColor?: string;
-    fontWeight?: string;
-    fontStyle?: string;
+    isBold?: boolean;
+    isItalic?: boolean;
     opacity?: number;
     applyToSubfolders?: boolean;
     applyToFiles?: boolean;
@@ -34,13 +40,23 @@ const DEFAULT_SETTINGS: ColorFolderSettings = {
         'Default': {
             backgroundColor: '#ffffff',
             textColor: '#000000',
-            fontWeight: 'normal',
-            fontStyle: 'normal',
+            isBold: false,
+            isItalic: false,
             opacity: 1,
             applyToSubfolders: false,
             applyToFiles: false
         }
     }
+};
+
+const DEFAULT_STYLE: StyleSettings = {
+    backgroundColor: '#ffffff',
+    textColor: '#000000',
+    isBold: false,
+    isItalic: false,
+    opacity: 1,
+    applyToSubfolders: false,
+    applyToFiles: false
 };
 
 export default class ColorFolderPlugin extends Plugin {
@@ -54,13 +70,15 @@ export default class ColorFolderPlugin extends Plugin {
         document.head.appendChild(this.styleEl);
         
         this.registerEvent(
-            this.app.workspace.on('file-menu', (menu: Menu, file: TAbstractFile) => {
-                menu.addItem((item) => {
+            this.app.workspace.on('file-menu', (menu, file) => {
+                menu.addItem((item: MenuItem) => {
                     item
                         .setTitle('Customize appearance')
                         .setIcon('palette')
                         .onClick(() => {
-                            new ColorSettingsModal(this.app, this, file).open();
+                            const modal = new ColorSettingsModal(this.app, this, file);
+                            modal.centerModal();
+                            modal.open();
                         });
                 });
             })
@@ -89,7 +107,6 @@ export default class ColorFolderPlugin extends Plugin {
         const cssRules: string[] = [];
         const processedPaths = new Set<string>();
         
-        // Process styles in reverse order of path length to handle nested paths correctly
         const sortedPaths = Object.entries(this.settings.styles)
             .sort(([a], [b]) => b.length - a.length);
 
@@ -99,8 +116,8 @@ export default class ColorFolderPlugin extends Plugin {
                 
                 if (style.backgroundColor) rules.push(`background-color: ${style.backgroundColor}`);
                 if (style.textColor) rules.push(`color: ${style.textColor}`);
-                if (style.fontWeight) rules.push(`font-weight: ${style.fontWeight}`);
-                if (style.fontStyle) rules.push(`font-style: ${style.fontStyle}`);
+                if (style.isBold) rules.push('font-weight: bold');
+                if (style.isItalic) rules.push('font-style: italic');
                 if (typeof style.opacity === 'number') rules.push(`opacity: ${style.opacity}`);
 
                 if (rules.length > 0) {
@@ -170,6 +187,14 @@ class ColorSettingsModal extends Modal {
     style: StyleSettings;
     presetNameInput: HTMLInputElement;
     previewEl: HTMLElement;
+    // Store control references
+    private bgColorPicker: ColorComponent;
+    private textColorPicker: ColorComponent;
+    private boldToggle: ToggleComponent;
+    private italicToggle: ToggleComponent;
+    private opacitySlider: SliderComponent;
+    private subfolderToggle: ToggleComponent;
+    private filesToggle: ToggleComponent;
 
     constructor(app: App, plugin: ColorFolderPlugin, file: TAbstractFile) {
         super(app);
@@ -178,16 +203,29 @@ class ColorSettingsModal extends Modal {
         this.style = { ...(plugin.settings.styles[file.path] || {}) };
         this.containerEl.addClass('color-folders-files-modal');
     }
+    
+    centerModal() {
+        const modalWidth = 300;  // Increased from 200px
+        const modalHeight = 350;
+
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        const finalX = (viewportWidth - modalWidth) / 2;
+        const finalY = (viewportHeight - modalHeight) / 2;
+
+        this.containerEl.style.left = finalX + 'px';
+        this.containerEl.style.top = finalY + 'px';
+        this.containerEl.style.position = 'absolute';
+        this.containerEl.style.width = modalWidth + 'px';
+    }
 
     onOpen() {
         const {contentEl} = this;
         contentEl.empty();
 
-        new Setting(contentEl).setHeading().setName('Customize appearance');
-
         // Preview section
         const previewSection = contentEl.createDiv('preview-section');
-        new Setting(previewSection).setHeading().setName('Preview');
         this.previewEl = previewSection.createDiv('preview-item');
         this.previewEl.setText(this.file.name);
         this.updatePreview();
@@ -195,144 +233,139 @@ class ColorSettingsModal extends Modal {
         // Background color
         new Setting(contentEl)
             .setName('Background color')
-            .addColorPicker(color => color
-                .setValue(this.style.backgroundColor || '#ffffff')
-                .onChange(value => {
-                    this.style.backgroundColor = value;
-                    this.updatePreview();
-                }));
+            .addColorPicker(color => {
+                this.bgColorPicker = color;
+                color.setValue(this.style.backgroundColor || '#ffffff')
+                    .onChange(value => {
+                        this.style.backgroundColor = value;
+                        this.updatePreview();
+                    });
+            });
 
         // Text color
         new Setting(contentEl)
             .setName('Text color')
-            .addColorPicker(color => color
-                .setValue(this.style.textColor || '#000000')
-                .onChange(value => {
-                    this.style.textColor = value;
-                    this.updatePreview();
-                }));
+            .addColorPicker(color => {
+                this.textColorPicker = color;
+                color.setValue(this.style.textColor || '#000000')
+                    .onChange(value => {
+                        this.style.textColor = value;
+                        this.updatePreview();
+                    });
+            });
 
-        // Font weight
+        // Bold toggle
         new Setting(contentEl)
-            .setName('Font weight')
-            .addDropdown(dropdown => dropdown
-                .addOptions({
-                    'normal': 'Normal',
-                    'bold': 'Bold'
-                })
-                .setValue(this.style.fontWeight || 'normal')
-                .onChange(value => {
-                    this.style.fontWeight = value;
-                    this.updatePreview();
-                }));
+            .setName('Bold')
+            .addToggle(toggle => {
+                this.boldToggle = toggle;
+                toggle.setValue(this.style.isBold || false)
+                    .onChange(value => {
+                        this.style.isBold = value;
+                        this.updatePreview();
+                    });
+            });
 
-        // Font style
+        // Italic toggle
         new Setting(contentEl)
-            .setName('Font style')
-            .addDropdown(dropdown => dropdown
-                .addOptions({
-                    'normal': 'Normal',
-                    'italic': 'Italic'
-                })
-                .setValue(this.style.fontStyle || 'normal')
-                .onChange(value => {
-                    this.style.fontStyle = value;
-                    this.updatePreview();
-                }));
+            .setName('Italic')
+            .addToggle(toggle => {
+                this.italicToggle = toggle;
+                toggle.setValue(this.style.isItalic || false)
+                    .onChange(value => {
+                        this.style.isItalic = value;
+                        this.updatePreview();
+                    });
+            });
 
         // Opacity
         new Setting(contentEl)
             .setName('Opacity')
-            .addSlider(slider => slider
-                .setLimits(0, 1, 0.1)
-                .setValue(this.style.opacity || 1)
-                .onChange(value => {
-                    this.style.opacity = value;
-                    this.updatePreview();
-                }));
+            .addSlider(slider => {
+                this.opacitySlider = slider;
+                slider.setLimits(0, 1, 0.1)
+                    .setValue(this.style.opacity || 1)
+                    .onChange(value => {
+                        this.style.opacity = value;
+                        this.updatePreview();
+                    });
+            });
 
         // Apply to subfolders
         new Setting(contentEl)
             .setName('Apply to subfolders')
-            .setDesc('Apply this style to all subfolders')
-            .addToggle(toggle => toggle
-                .setValue(this.style.applyToSubfolders || false)
-                .onChange(value => {
-                    this.style.applyToSubfolders = value;
-                }));
+            .addToggle(toggle => {
+                this.subfolderToggle = toggle;
+                toggle.setValue(this.style.applyToSubfolders || false)
+                    .onChange(value => {
+                        this.style.applyToSubfolders = value;
+                    });
+            });
 
         // Apply to files
         new Setting(contentEl)
             .setName('Apply to files')
-            .setDesc('Apply this style to all files within this folder')
-            .addToggle(toggle => toggle
-                .setValue(this.style.applyToFiles || false)
-                .onChange(value => {
-                    this.style.applyToFiles = value;
+            .addToggle(toggle => {
+                this.filesToggle = toggle;
+                toggle.setValue(this.style.applyToFiles || false)
+                    .onChange(value => {
+                        this.style.applyToFiles = value;
+                    });
+            });
+
+        // Buttons section
+        const buttonSection = contentEl.createDiv('button-section');
+        
+        // Reset button
+        new Setting(buttonSection)
+            .addButton(button => button
+                .setButtonText('Reset')
+                .onClick(async () => {
+                    delete this.plugin.settings.styles[this.file.path];
+                    await this.plugin.saveSettings();
+                    this.close();
+                    new Notice('Reset to default style');
+                }))
+            .addButton(button => button
+                .setButtonText('Apply')
+                .setCta()
+                .onClick(async () => {
+                    await this.saveChanges();
+                    this.close();
                 }));
 
         // Preset section
-        const presetSection = contentEl.createDiv('preset-section');
-        new Setting(presetSection).setHeading().setName('Presets');
-
-        // Save as preset
-        const presetSetting = new Setting(presetSection)
-            .setName('Save as preset')
-            .setDesc('Enter a name and click save to create a new preset');
-            
-        this.presetNameInput = presetSetting.controlEl.createEl('input', {
-            type: 'text',
-            cls: 'preset-name-input',
-            placeholder: 'Preset name'
-        });
-
-        presetSetting.addButton(button => button
-            .setButtonText('Save preset')
-            .onClick(async () => {
-                const presetName = this.presetNameInput.value;
-                if (presetName) {
-                    if (this.plugin.settings.presets[presetName]) {
-                        const shouldOverwrite = await this.plugin.confirmOverwritePreset(presetName);
-                        if (!shouldOverwrite) return;
-                    }
-                    this.plugin.settings.presets[presetName] = { ...this.style };
-                    await this.plugin.saveSettings();
-                    this.presetNameInput.value = '';
-                    new Notice(`Preset "${presetName}" saved`);
-                }
-            }));
-
-        // Apply preset
         if (Object.keys(this.plugin.settings.presets).length > 0) {
-            new Setting(presetSection)
-                .setName('Apply preset')
+            new Setting(contentEl)
+                .setName('Preset')
                 .addDropdown(dropdown => {
                     Object.keys(this.plugin.settings.presets).forEach(preset => {
                         dropdown.addOption(preset, preset);
                     });
                     return dropdown.onChange(value => {
                         this.style = { ...this.plugin.settings.presets[value] };
+                        this.updateControls();
                         this.updatePreview();
                     });
                 });
         }
+    }
 
-        // Apply button
-        new Setting(contentEl)
-            .addButton(button => button
-                .setButtonText('Apply changes')
-                .setCta()
-                .onClick(async () => {
-                    await this.saveChanges();
-                    this.close();
-                }));
+    updateControls() {
+        if (this.bgColorPicker) this.bgColorPicker.setValue(this.style.backgroundColor || '#ffffff');
+        if (this.textColorPicker) this.textColorPicker.setValue(this.style.textColor || '#000000');
+        if (this.boldToggle) this.boldToggle.setValue(this.style.isBold || false);
+        if (this.italicToggle) this.italicToggle.setValue(this.style.isItalic || false);
+        if (this.opacitySlider) this.opacitySlider.setValue(this.style.opacity || 1);
+        if (this.subfolderToggle) this.subfolderToggle.setValue(this.style.applyToSubfolders || false);
+        if (this.filesToggle) this.filesToggle.setValue(this.style.applyToFiles || false);
     }
 
     updatePreview() {
         if (this.style.backgroundColor) this.previewEl.style.backgroundColor = this.style.backgroundColor;
         if (this.style.textColor) this.previewEl.style.color = this.style.textColor;
-        if (this.style.fontWeight) this.previewEl.style.fontWeight = this.style.fontWeight;
-        if (this.style.fontStyle) this.previewEl.style.fontStyle = this.style.fontStyle;
+        this.previewEl.style.fontWeight = this.style.isBold ? 'bold' : 'normal';
+        this.previewEl.style.fontStyle = this.style.isItalic ? 'italic' : 'normal';
         if (typeof this.style.opacity === 'number') this.previewEl.style.opacity = this.style.opacity.toString();
     }
 
@@ -354,7 +387,11 @@ class ColorSettingsTab extends PluginSettingTab {
     constructor(app: App, plugin: ColorFolderPlugin) {
         super(app, plugin);
         this.plugin = plugin;
-        this.presetStyle = {};
+        this.resetPresetStyle();
+    }
+
+    resetPresetStyle() {
+        this.presetStyle = { ...DEFAULT_STYLE };
     }
 
     display(): void {
@@ -387,31 +424,23 @@ class ColorSettingsTab extends PluginSettingTab {
                     this.updatePreview(previewEl);
                 }));
 
-        // Font weight
+        // Bold toggle
         new Setting(containerEl)
-            .setName('Font weight')
-            .addDropdown(dropdown => dropdown
-                .addOptions({
-                    'normal': 'Normal',
-                    'bold': 'Bold'
-                })
-                .setValue(this.presetStyle.fontWeight || 'normal')
+            .setName('Bold')
+            .addToggle(toggle => toggle
+                .setValue(this.presetStyle.isBold || false)
                 .onChange(value => {
-                    this.presetStyle.fontWeight = value;
+                    this.presetStyle.isBold = value;
                     this.updatePreview(previewEl);
                 }));
 
-        // Font style
+        // Italic toggle
         new Setting(containerEl)
-            .setName('Font style')
-            .addDropdown(dropdown => dropdown
-                .addOptions({
-                    'normal': 'Normal',
-                    'italic': 'Italic'
-                })
-                .setValue(this.presetStyle.fontStyle || 'normal')
+            .setName('Italic')
+            .addToggle(toggle => toggle
+                .setValue(this.presetStyle.isItalic || false)
                 .onChange(value => {
-                    this.presetStyle.fontStyle = value;
+                    this.presetStyle.isItalic = value;
                     this.updatePreview(previewEl);
                 }));
 
@@ -426,18 +455,26 @@ class ColorSettingsTab extends PluginSettingTab {
                     this.updatePreview(previewEl);
                 }));
 
-        const presetNameInput = containerEl.createEl('input', {
-            type: 'text',
-            cls: 'preset-name-input',
-            placeholder: 'Preset name'
-        });
-
-        new Setting(containerEl)
+        // Save preset section with name input and buttons
+        let textComponent: TextComponent;
+        const savePresetSetting = new Setting(containerEl)
+            .setName('Save preset')
+            .addText(text => {
+                textComponent = text;
+                text.setPlaceholder('Preset name')
+                    .setValue('');
+            })
             .addButton(button => button
-                .setButtonText('Save preset')
+                .setButtonText('Reset')
+                .onClick(() => {
+                    this.resetPresetStyle();
+                    this.display();
+                }))
+            .addButton(button => button
+                .setButtonText('Save')
                 .setCta()
                 .onClick(async () => {
-                    const presetName = presetNameInput.value;
+                    const presetName = textComponent.getValue();
                     if (presetName) {
                         if (this.plugin.settings.presets[presetName]) {
                             const shouldOverwrite = await this.plugin.confirmOverwritePreset(presetName);
@@ -445,7 +482,7 @@ class ColorSettingsTab extends PluginSettingTab {
                         }
                         this.plugin.settings.presets[presetName] = { ...this.presetStyle };
                         await this.plugin.saveSettings();
-                        presetNameInput.value = '';
+                        textComponent.setValue('');
                         this.display();
                         new Notice(`Preset "${presetName}" saved`);
                     }
@@ -462,7 +499,6 @@ class ColorSettingsTab extends PluginSettingTab {
             this.updatePreview(previewEl, preset);
 
             new Setting(presetContainer)
-                .setName(name)
                 .addButton(btn => btn
                     .setIcon('trash')
                     .setTooltip('Delete preset')
@@ -478,8 +514,8 @@ class ColorSettingsTab extends PluginSettingTab {
     private updatePreview(previewEl: HTMLElement, style: StyleSettings = this.presetStyle) {
         if (style.backgroundColor) previewEl.style.backgroundColor = style.backgroundColor;
         if (style.textColor) previewEl.style.color = style.textColor;
-        if (style.fontWeight) previewEl.style.fontWeight = style.fontWeight;
-        if (style.fontStyle) previewEl.style.fontStyle = style.fontStyle;
+        previewEl.style.fontWeight = style.isBold ? 'bold' : 'normal';
+        previewEl.style.fontStyle = style.isItalic ? 'italic' : 'normal';
         if (typeof style.opacity === 'number') previewEl.style.opacity = style.opacity.toString();
     }
 }

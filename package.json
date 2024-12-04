@@ -1,29 +1,24 @@
 {
-    "name": "color-folders-files",
-    "version": "1.0.0",
-    "description": "Customize the appearance of folders and files through an easy-to-use context menu with color picker and style options.",
-    "main": "main.js",
-    "scripts": {
-        "dev": "node esbuild.config.mjs",
-        "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-        "version": "node version-bump.mjs"
-    },
-    "keywords": [],
-    "author": "Mithadon",
-    "license": "AGPL-3.0",
-    "devDependencies": {
-        "@types/node": "14.18.63",
-        "@codemirror/state": "6.2.1",
-        "@codemirror/view": "6.21.3",
-        "@codemirror/commands": "6.3.0",
-        "@codemirror/language": "6.9.1",
-        "@codemirror/search": "6.5.4",
-        "@codemirror/autocomplete": "6.11.1",
-        "@codemirror/lint": "6.4.2",
-        "builtin-modules": "^3.2.0",
-        "esbuild": "^0.19.12",
-        "obsidian": "^1.4.11",
-        "tslib": "2.3.1",
-        "typescript": "4.4.4"
-    }
+	"name": "color-folders-files",
+	"version": "1.1.0",
+	"description": "Customize the appearance of folders and files in the file explorer.",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
+	},
+	"keywords": [],
+	"author": "Mithadon",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^16.11.6",
+		"@typescript-eslint/eslint-plugin": "5.29.0",
+		"@typescript-eslint/parser": "5.29.0",
+		"builtin-modules": "3.3.0",
+		"esbuild": "0.17.3",
+		"obsidian": "latest",
+		"tslib": "2.4.0",
+		"typescript": "4.7.4"
+	}
 }

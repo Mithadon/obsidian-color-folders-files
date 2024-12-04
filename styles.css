@@ -1,10 +1,22 @@
 /* Modal styles */
-.color-folders-files-modal {
-    max-width: 500px;
+.modal.color-folders-files-modal {
+    width: 330px !important;
+    max-width: 330px !important;
+    max-height: 80vh !important;
 }
 
-.color-folders-files-modal .preview-section,
-.color-folders-files-modal .preset-section {
+/* Remove ALL Obsidian's default modal shadows */
+.modal.color-folders-files-modal,
+.modal.color-folders-files-modal .modal-container,
+.modal.color-folders-files-modal .modal-content,
+.modal.color-folders-files-modal .modal-close-button,
+.modal.color-folders-files-modal .modal-title,
+.modal.color-folders-files-modal .vertical-tab-header,
+.modal.color-folders-files-modal .vertical-tab-content-container {
+    box-shadow: none !important;
+}
+
+.modal.color-folders-files-modal .preview-section {
     margin: 20px 0;
     padding: 15px;
     border-radius: var(--radius-m);
@@ -12,7 +24,7 @@
     border: 1px solid var(--background-modifier-border);
 }
 
-.preview-item {
+.modal.color-folders-files-modal .preview-item {
     margin: 10px 0;
     padding: 8px 12px;
     border-radius: var(--radius-s);
@@ -22,65 +34,41 @@
     transition: all 0.2s ease;
 }
 
-.preset-container {
-    margin: 15px 0;
-    padding: 15px;
-    border-radius: var(--radius-m);
-    background-color: var(--background-secondary);
-    border: 1px solid var(--background-modifier-border);
-}
-
-/* Input styles */
-.preset-name-input {
-    padding: var(--size-4-2);
-    border-radius: var(--radius-s);
-    background-color: var(--background-primary);
-    border: 1px solid var(--background-modifier-border);
-    color: var(--text-normal);
-    font-size: var(--font-ui-small);
-    width: 200px;
-}
-
-.preset-name-input:focus {
-    border-color: var(--interactive-accent);
-    box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
-}
-
 /* Setting styles */
-.setting-item {
+.modal.color-folders-files-modal .setting-item {
     border-top: none;
     padding: var(--size-4-2) 0;
 }
 
-.setting-item-control {
+.modal.color-folders-files-modal .setting-item-control {
     gap: var(--size-4-2);
 }
 
 /* Color picker styles */
-.color-picker-wrapper {
+.modal.color-folders-files-modal .color-picker-wrapper {
     margin-right: var(--size-4-2);
 }
 
 /* Button styles */
-button.mod-cta {
+.modal.color-folders-files-modal button.mod-cta {
     background-color: var(--interactive-accent);
     color: var(--text-on-accent);
     font-weight: var(--font-medium);
     padding: var(--size-4-1) var(--size-4-3);
 }
 
-button.mod-cta:hover {
+.modal.color-folders-files-modal button.mod-cta:hover {
     background-color: var(--interactive-accent-hover);
 }
 
 /* Slider styles */
-.slider {
+.modal.color-folders-files-modal .slider {
     height: 4px;
     background-color: var(--interactive-normal);
     border-radius: var(--radius-s);
 }
 
-.slider::-webkit-slider-thumb {
+.modal.color-folders-files-modal .slider::-webkit-slider-thumb {
     width: 16px;
     height: 16px;
     border-radius: 50%;
@@ -88,33 +76,63 @@ button.mod-cta:hover {
     cursor: pointer;
 }
 
-/* Toggle styles */
-.checkbox-container {
-    padding: var(--size-4-1);
-}
-
 /* Dropdown styles */
-select {
+.modal.color-folders-files-modal select {
     padding: var(--size-4-1) var(--size-4-2);
     border-radius: var(--radius-s);
     background-color: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
     color: var(--text-normal);
     font-size: var(--font-ui-small);
+    padding-right: 25px !important;
+    background-position: right 8px center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" stroke="%23666" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
 }
 
-select:focus {
+.modal.color-folders-files-modal select:focus {
     border-color: var(--interactive-accent);
     box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
 }
 
 /* Notice styles */
-.notice {
+.modal.color-folders-files-modal .notice {
     background-color: var(--background-primary);
     color: var(--text-normal);
     border: 1px solid var(--background-modifier-border);
     border-radius: var(--radius-m);
     padding: var(--size-4-2) var(--size-4-3);
     margin: var(--size-4-2) 0;
-    box-shadow: var(--shadow-s);
+}
+
+/* Button section styles */
+.modal.color-folders-files-modal .button-section {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Preset save section */
+.modal.color-folders-files-modal .setting-item.preset-save {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal.color-folders-files-modal .setting-item.preset-save .setting-item-info {
+    width: 100%;
+    text-align: center;
+}
+
+.modal.color-folders-files-modal .setting-item.preset-save .setting-item-control {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }

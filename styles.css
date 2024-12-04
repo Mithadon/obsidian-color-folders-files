@@ -34,6 +34,27 @@
     transition: all 0.2s ease;
 }
 
+/* Preview item style states */
+.preview-item.is-bold {
+    font-weight: bold;
+}
+
+.preview-item.is-italic {
+    font-style: italic;
+}
+
+.preview-item[style*="--bg-color"] {
+    background-color: var(--bg-color) !important;
+}
+
+.preview-item[style*="--text-color"] {
+    color: var(--text-color) !important;
+}
+
+.preview-item[style*="--opacity"] {
+    opacity: var(--opacity) !important;
+}
+
 /* Setting styles */
 .modal.color-folders-files-modal .setting-item {
     border-top: none;

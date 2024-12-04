@@ -27,7 +27,7 @@ export default class ColorFolderPlugin extends Plugin implements ColorFolderPlug
                             this.activeModals.clear();
 
                             // Create and open new modal
-                            const modal = new ColorSettingsModal(this.app, this, file);
+                            const modal = new ColorSettingsModal(this.app, this, file.path);
                             this.activeModals.add(modal);
                             
                             // Override the modal's close method to ensure cleanup
@@ -86,13 +86,24 @@ export default class ColorFolderPlugin extends Plugin implements ColorFolderPlug
         const cssRules: string[] = [];
         const processedPaths = new Set<string>();
         
+        // Add base styles for the nav items
+        cssRules.push(`
+            .nav-folder-title,
+            .nav-file-title {
+                transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+            }
+        `);
+
         const sortedPaths = Object.entries(this.settings.styles)
             .sort(([a], [b]) => b.length - a.length);
 
         for (const [path, style] of sortedPaths) {
             if (!processedPaths.has(path)) {
+                const selector = this.getFileSelector(path);
+                const subfolderSelector = this.getSubfolderSelector(path);
+                const filesSelector = this.getFilesSelector(path);
+
                 const rules: string[] = [];
-                
                 if (style.backgroundColor) rules.push(`background-color: ${style.backgroundColor}`);
                 if (style.textColor) rules.push(`color: ${style.textColor}`);
                 if (style.isBold) rules.push('font-weight: bold');
@@ -100,17 +111,21 @@ export default class ColorFolderPlugin extends Plugin implements ColorFolderPlug
                 if (typeof style.opacity === 'number') rules.push(`opacity: ${style.opacity}`);
 
                 if (rules.length > 0) {
-                    cssRules.push(`${this.getFileSelector(path)} { ${rules.join('; ')}; }`);
-                    processedPaths.add(path);
+                    // Apply styles to the target path
+                    cssRules.push(`${selector} { ${rules.join('; ')}; }`);
 
+                    // Apply styles to subfolders if enabled
                     if (style.applyToSubfolders) {
-                        cssRules.push(`${this.getSubfolderSelector(path)} { ${rules.join('; ')}; }`);
+                        cssRules.push(`${subfolderSelector} { ${rules.join('; ')}; }`);
                     }
-                    
+
+                    // Apply styles to files if enabled
                     if (style.applyToFiles) {
-                        cssRules.push(`${this.getFilesSelector(path)} { ${rules.join('; ')}; }`);
+                        cssRules.push(`${filesSelector} { ${rules.join('; ')}; }`);
                     }
                 }
+
+                processedPaths.add(path);
             }
         }
 

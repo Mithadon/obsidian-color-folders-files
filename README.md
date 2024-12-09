@@ -7,12 +7,10 @@ by .css snippet applications like https://github.com/CyanVoxel/Obsidian-Colored-
 
 Tested with Obsidian's default theme on Windows and Android. Compatible with the Iconize plugin, which takes precedence (default icon colors are changed with text, while defined icon colors remain).
 
-New in version 1.2.0:
-- Added 'Remove styling' button
-- Settings menu and context menu visual improvements
-- Added hex color display/input
-- Added preset re-ordering
-- Added settings import/export
+New in version 1.4.0:
+- !!! New style snippet (custom-file-styles.css) to style filenames based on their extension. Designed to work with the Style Settings plugin (https://github.com/mgmeyers/obsidian-style-settings). Supports a wide number of file types, with default colors matching the common software that use them. You can easily add your own extensions as well by editing the file.
+- Automatic hover styling
+- Settings menu preset selector
 
 <img src="res/contextual.png" alt="Context Menu" width="300"/> <img src="res/settings.png" alt="Settings" width="500"/>
 

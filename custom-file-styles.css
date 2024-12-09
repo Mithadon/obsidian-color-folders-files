@@ -1,0 +1,681 @@
+/* @settings
+name: Custom File Styles
+id: custom-file-styles
+settings:
+    -
+        id: font-info-heading
+        title: Font Information
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: font-info
+        title: How to Enter Fonts
+        description: >-
+            Enter one or more fonts. The first font takes priority.
+            The second is a fallback in case the first fails, and so on.
+            Fonts with spaces need quotes. Separate multiple fonts with commas.
+            End with generic family (sans-serif, serif, monospace).
+            Example: "Font Name", Arial, sans-serif
+        type: info-text
+    -
+        id: font-examples
+        title: Common Font Examples
+        description: |-
+            Modern UI:
+            "Inter", -apple-system, "Segoe UI", sans-serif
+
+            Code:
+            "JetBrains Mono", "Fira Code", "Source Code Pro", monospace
+
+            Clean:
+            "Open Sans", "Roboto", "Lato", sans-serif
+
+            Traditional:
+            "Palatino Linotype", "Book Antiqua", serif
+
+            Readable:
+            "Noto Sans", "Helvetica Neue", Arial, sans-serif
+
+            Markdown:
+            "iA Writer Mono", "IBM Plex Mono", monospace
+        type: info-text
+
+    -
+        id: documents-heading
+        title: Document Files
+        type: heading
+        level: 1
+        collapsed: true
+    - 
+        id: markdown-color
+        title: Markdown Files Color
+        description: Color for .md files
+        type: variable-themed-color
+        format: hex
+        default-light: '#4A90E2'
+        default-dark: '#4A90E2'
+    -
+        id: markdown-font
+        title: Markdown Files Font
+        description: Font family for .md files
+        type: variable-text
+        default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+    - 
+        id: pdf-color
+        title: PDF Files Color
+        description: Color for .pdf files
+        type: variable-themed-color
+        format: hex
+        default-light: '#b40000'
+        default-dark: '#b40000'
+    -
+        id: pdf-font
+        title: PDF Files Font
+        description: Font family for .pdf files
+        type: variable-text
+        default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+    -
+        id: txt-color
+        title: Text Files Color
+        description: Color for .txt files
+        type: variable-themed-color
+        format: hex
+        default-light: '#95A5A6'
+        default-dark: '#95A5A6'
+    -
+        id: txt-font
+        title: Text Files Font
+        description: Font family for .txt files
+        type: variable-text
+        default: 'Consolas, Monaco, monospace'
+    -
+        id: rtf-color
+        title: Rich Text Files Color
+        description: Color for .rtf files
+        type: variable-themed-color
+        format: hex
+        default-light: '#34495E'
+        default-dark: '#34495E'
+    -
+        id: rtf-font
+        title: Rich Text Files Font
+        description: Font family for .rtf files
+        type: variable-text
+        default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+    -
+        id: microsoft-heading
+        title: Microsoft Office Files
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: doc-color
+        title: Word Documents Color
+        description: Color for .doc, .docx files
+        type: variable-themed-color
+        format: hex
+        default-light: '#103F91'
+        default-dark: '#103F91'
+    -
+        id: doc-font
+        title: Word Documents Font
+        description: Font family for .doc, .docx files
+        type: variable-text
+        default: 'Calibri, sans-serif'
+    -
+        id: xls-color
+        title: Excel Files Color
+        description: Color for .xls, .xlsx files
+        type: variable-themed-color
+        format: hex
+        default-light: '#217346'
+        default-dark: '#217346'
+    -
+        id: xls-font
+        title: Excel Files Font
+        description: Font family for .xls, .xlsx files
+        type: variable-text
+        default: 'Calibri, sans-serif'
+    -
+        id: ppt-color
+        title: PowerPoint Files Color
+        description: Color for .ppt, .pptx files
+        type: variable-themed-color
+        format: hex
+        default-light: '#D24726'
+        default-dark: '#D24726'
+    -
+        id: ppt-font
+        title: PowerPoint Files Font
+        description: Font family for .ppt, .pptx files
+        type: variable-text
+        default: 'Calibri, sans-serif'
+    -
+        id: media-heading
+        title: Media Files
+        type: heading
+        level: 1
+        collapsed: true
+    - 
+        id: image-color
+        title: Image Files Color
+        description: Color for image files (.png, .jpg, .jpeg, .gif, .bmp, .svg, .webp, .tiff)
+        type: variable-themed-color
+        format: hex
+        default-light: '#27AE60'
+        default-dark: '#27AE60'
+    -
+        id: video-color
+        title: Video Files Color
+        description: Color for video files (.mp4, .mov, .avi, .webm, .mkv, .flv, .wmv)
+        type: variable-themed-color
+        format: hex
+        default-light: '#8E44AD'
+        default-dark: '#8E44AD'
+    -
+        id: audio-color
+        title: Audio Files Color
+        description: Color for audio files (.mp3, .wav, .ogg, .m4a, .flac, .aac)
+        type: variable-themed-color
+        format: hex
+        default-light: '#F39C12'
+        default-dark: '#F39C12'
+    -
+        id: adobe-heading
+        title: Adobe Files
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: psd-color
+        title: Photoshop Files Color
+        description: Color for .psd files
+        type: variable-themed-color
+        format: hex
+        default-light: '#29a9ff'
+        default-dark: '#29a9ff'
+    -
+        id: psd-font
+        title: Photoshop Files Font
+        description: Font family for .psd files
+        type: variable-text
+        default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+    -
+        id: ai-color
+        title: Illustrator Files Color
+        description: Color for .ai files
+        type: variable-themed-color
+        format: hex
+        default-light: '#ff9700'
+        default-dark: '#ff9700'
+    -
+        id: ai-font
+        title: Illustrator Files Font
+        description: Font family for .ai files
+        type: variable-text
+        default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+    -
+        id: indd-color
+        title: InDesign Files Color
+        description: Color for .indd files
+        type: variable-themed-color
+        format: hex
+        default-light: '#ff1f65'
+        default-dark: '#ff1f65'
+    -
+        id: indd-font
+        title: InDesign Files Font
+        description: Font family for .indd files
+        type: variable-text
+        default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+    -
+        id: xd-color
+        title: XD Files Color
+        description: Color for .xd files
+        type: variable-themed-color
+        format: hex
+        default-light: '#FF61F6'
+        default-dark: '#FF61F6'
+    -
+        id: xd-font
+        title: XD Files Font
+        description: Font family for .xd files
+        type: variable-text
+        default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+    -
+        id: ae-color
+        title: After Effects Files Color
+        description: Color for .aep files
+        type: variable-themed-color
+        format: hex
+        default-light: '#9999ff'
+        default-dark: '#9999ff'
+    -
+        id: ae-font
+        title: After Effects Files Font
+        description: Font family for .aep files
+        type: variable-text
+        default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+    -
+        id: pr-color
+        title: Premiere Files Color
+        description: Color for .prproj files
+        type: variable-themed-color
+        format: hex
+        default-light: '#9999ff'
+        default-dark: '#9999ff'
+    -
+        id: pr-font
+        title: Premiere Files Font
+        description: Font family for .prproj files
+        type: variable-text
+        default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+    -
+        id: code-heading
+        title: Code Files
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: json-color
+        title: JSON Files Color
+        description: Color for .json, .jsonl files
+        type: variable-themed-color
+        format: hex
+        default-light: '#F1C40F'
+        default-dark: '#F1C40F'
+    -
+        id: json-font
+        title: JSON Files Font
+        description: Font family for .json, jsonl files
+        type: variable-text
+        default: 'Source Code Pro, Consolas, Monaco, monospace'
+    -
+        id: js-color
+        title: JavaScript Files Color
+        description: Color for .js, .jsx, .ts, .tsx files
+        type: variable-themed-color
+        format: hex
+        default-light: '#F7DF1E'
+        default-dark: '#F7DF1E'
+    -
+        id: js-font
+        title: JavaScript Files Font
+        description: Font family for .js, .jsx, .ts, .tsx files
+        type: variable-text
+        default: 'Source Code Pro, Consolas, Monaco, monospace'
+    -
+        id: py-color
+        title: Python Files Color
+        description: Color for .py files
+        type: variable-themed-color
+        format: hex
+        default-light: '#3776AB'
+        default-dark: '#3776AB'
+    -
+        id: py-font
+        title: Python Files Font
+        description: Font family for .py files
+        type: variable-text
+        default: 'Source Code Pro, Consolas, Monaco, monospace'
+    -
+        id: html-color
+        title: HTML Files Color
+        description: Color for .html, .htm files
+        type: variable-themed-color
+        format: hex
+        default-light: '#E34F26'
+        default-dark: '#E34F26'
+    -
+        id: html-font
+        title: HTML Files Font
+        description: Font family for .html, .htm files
+        type: variable-text
+        default: 'Source Code Pro, Consolas, Monaco, monospace'
+    -
+        id: css-color
+        title: CSS Files Color
+        description: Color for .css, .scss, .sass files
+        type: variable-themed-color
+        format: hex
+        default-light: '#1572B6'
+        default-dark: '#1572B6'
+    -
+        id: css-font
+        title: CSS Files Font
+        description: Font family for .css, .scss, .sass files
+        type: variable-text
+        default: 'Source Code Pro, Consolas, Monaco, monospace'
+    -
+        id: php-color
+        title: PHP Files Color
+        description: Color for .php files
+        type: variable-themed-color
+        format: hex
+        default-light: '#777BB4'
+        default-dark: '#777BB4'
+    -
+        id: php-font
+        title: PHP Files Font
+        description: Font family for .php files
+        type: variable-text
+        default: 'Source Code Pro, Consolas, Monaco, monospace'
+    -
+        id: data-heading
+        title: Data Files
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: csv-color
+        title: CSV Files Color
+        description: Color for .csv files
+        type: variable-themed-color
+        format: hex
+        default-light: '#217346'
+        default-dark: '#217346'
+    -
+        id: csv-font
+        title: CSV Files Font
+        description: Font family for .csv files
+        type: variable-text
+        default: 'Consolas, Monaco, monospace'
+    -
+        id: xml-color
+        title: XML Files Color
+        description: Color for .xml files
+        type: variable-themed-color
+        format: hex
+        default-light: '#F1C40F'
+        default-dark: '#F1C40F'
+    -
+        id: xml-font
+        title: XML Files Font
+        description: Font family for .xml files
+        type: variable-text
+        default: 'Source Code Pro, Consolas, Monaco, monospace'
+    -
+        id: sql-color
+        title: SQL Files Color
+        description: Color for .sql files
+        type: variable-themed-color
+        format: hex
+        default-light: '#E59E22'
+        default-dark: '#E59E22'
+    -
+        id: sql-font
+        title: SQL Files Font
+        description: Font family for .sql files
+        type: variable-text
+        default: 'Source Code Pro, Consolas, Monaco, monospace'
+    -
+        id: system-heading
+        title: System Files
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: exe-color
+        title: Executable Files Color
+        description: Color for .exe files
+        type: variable-themed-color
+        format: hex
+        default-light: '#1ABC9C'
+        default-dark: '#1ABC9C'
+    -
+        id: exe-font
+        title: Executable Files Font
+        description: Font family for .exe files
+        type: variable-text
+        default: 'Consolas, "Courier New", monospace'
+    -
+        id: reg-color
+        title: Registry Files Color
+        description: Color for .reg files
+        type: variable-themed-color
+        format: hex
+        default-light: '#51cefa'
+        default-dark: '#51cefa'
+    -
+        id: reg-font
+        title: Registry Files Font
+        description: Font family for .reg files
+        type: variable-text
+        default: 'Consolas, "Courier New", monospace'
+    -
+        id: bat-color
+        title: Batch Files Color
+        description: Color for .bat, .cmd files
+        type: variable-themed-color
+        format: hex
+        default-light: '#8E44AD'
+        default-dark: '#8E44AD'
+    -
+        id: bat-font
+        title: Batch Files Font
+        description: Font family for .bat, .cmd files
+        type: variable-text
+        default: 'Consolas, "Courier New", monospace'
+    -
+        id: archive-heading
+        title: Archive Files
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: zip-color
+        title: ZIP Files Color
+        description: Color for .zip, .7z files
+        type: variable-themed-color
+        format: hex
+        default-light: '#F39C12'
+        default-dark: '#F39C12'
+    -
+        id: zip-font
+        title: ZIP Files Font
+        description: Font family for .zip, .7z files
+        type: variable-text
+        default: 'Consolas, "Courier New", monospace'
+    -
+        id: rar-color
+        title: RAR Files Color
+        description: Color for .rar files
+        type: variable-themed-color
+        format: hex
+        default-light: '#E67E22'
+        default-dark: '#E67E22'
+    -
+        id: rar-font
+        title: RAR Files Font
+        description: Font family for .rar files
+        type: variable-text
+        default: 'Consolas, "Courier New", monospace'
+*/
+
+/* Document files */
+.nav-file-title[data-path$=".md"] {
+    color: var(--markdown-color);
+    font-family: var(--markdown-font);
+}
+
+.nav-file-title[data-path$=".pdf"] {
+    color: var(--pdf-color);
+    font-family: var(--pdf-font);
+}
+
+.nav-file-title[data-path$=".txt"] {
+    color: var(--txt-color);
+    font-family: var(--txt-font);
+}
+
+.nav-file-title[data-path$=".rtf"] {
+    color: var(--rtf-color);
+    font-family: var(--rtf-font);
+}
+
+/* Microsoft Office files */
+.nav-file-title[data-path$=".doc"],
+.nav-file-title[data-path$=".docx"] {
+    color: var(--doc-color);
+    font-family: var(--doc-font);
+}
+
+.nav-file-title[data-path$=".xls"],
+.nav-file-title[data-path$=".xlsx"] {
+    color: var(--xls-color);
+    font-family: var(--xls-font);
+}
+
+.nav-file-title[data-path$=".ppt"],
+.nav-file-title[data-path$=".pptx"] {
+    color: var(--ppt-color);
+    font-family: var(--ppt-font);
+}
+
+/* Image files */
+.nav-file-title[data-path$=".jpg"],
+.nav-file-title[data-path$=".jpeg"],
+.nav-file-title[data-path$=".png"],
+.nav-file-title[data-path$=".gif"],
+.nav-file-title[data-path$=".bmp"],
+.nav-file-title[data-path$=".svg"],
+.nav-file-title[data-path$=".webp"],
+.nav-file-title[data-path$=".tiff"] {
+    color: var(--image-color);
+}
+
+/* Video files */
+.nav-file-title[data-path$=".mp4"],
+.nav-file-title[data-path$=".mov"],
+.nav-file-title[data-path$=".avi"],
+.nav-file-title[data-path$=".webm"],
+.nav-file-title[data-path$=".mkv"],
+.nav-file-title[data-path$=".flv"],
+.nav-file-title[data-path$=".wmv"] {
+    color: var(--video-color);
+}
+
+/* Audio files */
+.nav-file-title[data-path$=".mp3"],
+.nav-file-title[data-path$=".wav"],
+.nav-file-title[data-path$=".ogg"],
+.nav-file-title[data-path$=".m4a"],
+.nav-file-title[data-path$=".flac"],
+.nav-file-title[data-path$=".aac"] {
+    color: var(--audio-color);
+}
+
+/* Adobe files */
+.nav-file-title[data-path$=".psd"] {
+    color: var(--psd-color);
+    font-family: var(--psd-font);
+}
+
+.nav-file-title[data-path$=".ai"] {
+    color: var(--ai-color);
+    font-family: var(--ai-font);
+}
+
+.nav-file-title[data-path$=".indd"] {
+    color: var(--indd-color);
+    font-family: var(--indd-font);
+}
+
+.nav-file-title[data-path$=".xd"] {
+    color: var(--xd-color);
+    font-family: var(--xd-font);
+}
+
+.nav-file-title[data-path$=".aep"] {
+    color: var(--ae-color);
+    font-family: var(--ae-font);
+}
+
+.nav-file-title[data-path$=".prproj"] {
+    color: var(--pr-color);
+    font-family: var(--pr-font);
+}
+
+/* Code files */
+.nav-file-title[data-path$=".json"],
+.nav-file-title[data-path$=".jsonl"] {
+    color: var(--json-color);
+    font-family: var(--json-font);
+}
+
+.nav-file-title[data-path$=".js"],
+.nav-file-title[data-path$=".jsx"],
+.nav-file-title[data-path$=".ts"],
+.nav-file-title[data-path$=".tsx"] {
+    color: var(--js-color);
+    font-family: var(--js-font);
+}
+
+.nav-file-title[data-path$=".py"] {
+    color: var(--py-color);
+    font-family: var(--py-font);
+}
+
+.nav-file-title[data-path$=".html"],
+.nav-file-title[data-path$=".htm"] {
+    color: var(--html-color);
+    font-family: var(--html-font);
+}
+
+.nav-file-title[data-path$=".css"],
+.nav-file-title[data-path$=".scss"],
+.nav-file-title[data-path$=".sass"] {
+    color: var(--css-color);
+    font-family: var(--css-font);
+}
+
+.nav-file-title[data-path$=".php"] {
+    color: var(--php-color);
+    font-family: var(--php-font);
+}
+
+/* Data files */
+.nav-file-title[data-path$=".csv"] {
+    color: var(--csv-color);
+    font-family: var(--csv-font);
+}
+
+.nav-file-title[data-path$=".xml"] {
+    color: var(--xml-color);
+    font-family: var(--xml-font);
+}
+
+.nav-file-title[data-path$=".sql"] {
+    color: var(--sql-color);
+    font-family: var(--sql-font);
+}
+
+/* System files */
+.nav-file-title[data-path$=".exe"] {
+    color: var(--exe-color);
+    font-family: var(--exe-font);
+}
+
+.nav-file-title[data-path$=".reg"] {
+    color: var(--reg-color);
+    font-family: var(--reg-font);
+}
+
+.nav-file-title[data-path$=".bat"],
+.nav-file-title[data-path$=".cmd"] {
+    color: var(--bat-color);
+    font-family: var(--bat-font);
+}
+
+/* Archive files */
+.nav-file-title[data-path$=".zip"],
+.nav-file-title[data-path$=".7z"] {
+    color: var(--zip-color);
+    font-family: var(--zip-font);
+}
+
+.nav-file-title[data-path$=".rar"] {
+    color: var(--rar-color);
+    font-family: var(--rar-font);
+}

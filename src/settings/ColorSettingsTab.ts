@@ -1,10 +1,11 @@
-import { App, Plugin, PluginSettingTab, Setting, Notice, TextComponent } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting, Notice, TextComponent, ColorComponent } from 'obsidian';
 import { StyleSettings, ColorFolderPluginInterface } from '../types';
 import { DEFAULT_STYLE } from '../constants';
 
 export class ColorSettingsTab extends PluginSettingTab {
     private presetStyle: StyleSettings;
     private plugin: ColorFolderPluginInterface;
+    private styleEl: HTMLStyleElement;
 
     constructor(app: App, plugin: Plugin & ColorFolderPluginInterface) {
         super(app, plugin);
@@ -41,9 +42,26 @@ export class ColorSettingsTab extends PluginSettingTab {
         this.presetStyle = { ...DEFAULT_STYLE };
     }
 
+    hide() {
+        // Clean up style element when tab is hidden
+        if (this.styleEl) {
+            this.styleEl.remove();
+        }
+        super.hide();
+    }
+
     display(): void {
         const {containerEl} = this;
         containerEl.empty();
+
+        // Remove old style element if it exists
+        if (this.styleEl) {
+            this.styleEl.remove();
+        }
+
+        // Create new style element for hover states
+        this.styleEl = document.createElement('style');
+        document.head.appendChild(this.styleEl);
 
         // Ensure presetOrder is synced before displaying
         this.syncPresetOrder();
@@ -52,20 +70,53 @@ export class ColorSettingsTab extends PluginSettingTab {
         new Setting(containerEl).setHeading().setName('Create new preset');
         
         const previewEl = containerEl.createDiv('preview-item');
+        previewEl.setAttribute('data-path', 'new-preset-preview');
         previewEl.createSpan().setText('Preview');
+        this.updatePreview(previewEl);
+
+        // Preset selector
+        if (Object.keys(this.plugin.settings.presets).length > 0) {
+            new Setting(containerEl)
+                .setName('Start from preset')
+                .setDesc('Select an existing preset as a starting point')
+                .addDropdown(dropdown => {
+                    dropdown.addOption('', 'Select a preset...');
+                    Object.keys(this.plugin.settings.presets).forEach(preset => {
+                        dropdown.addOption(preset, preset);
+                    });
+                    return dropdown.onChange(value => {
+                        if (value) {
+                            this.presetStyle = { ...this.plugin.settings.presets[value] };
+                            this.updatePreview(previewEl);
+                            // Update all controls
+                            if (this.bgColorPicker) this.bgColorPicker.setValue(this.presetStyle.backgroundColor || '#ffffff');
+                            if (this.textColorPicker) this.textColorPicker.setValue(this.presetStyle.textColor || '#000000');
+                            if (this.boldToggle) this.boldToggle.setValue(this.presetStyle.isBold || false);
+                            if (this.italicToggle) this.italicToggle.setValue(this.presetStyle.isItalic || false);
+                            if (this.opacitySlider) this.opacitySlider.setValue(this.presetStyle.opacity || 1);
+                            // Reset dropdown after selection
+                            dropdown.setValue('');
+                        }
+                    });
+                });
+        }
         
         // Background color with hex input
         const bgColorSetting = new Setting(containerEl).setName('Background color');
         const bgColorContainer = bgColorSetting.controlEl.createDiv('color-container');
         
         let bgHexInput: HTMLInputElement;
-        bgColorSetting.addColorPicker(color => color
-            .setValue(this.presetStyle.backgroundColor || '#ffffff')
-            .onChange(value => {
-                this.presetStyle.backgroundColor = value;
-                bgHexInput.value = value;
-                this.updatePreview(previewEl);
-            }));
+        let bgColorPicker: ColorComponent;
+        bgColorSetting.addColorPicker(color => {
+            bgColorPicker = color;
+            this.bgColorPicker = color;
+            color.setValue(this.presetStyle.backgroundColor || '#ffffff')
+                .onChange(value => {
+                    this.presetStyle.backgroundColor = value;
+                    bgHexInput.value = value;
+                    this.updatePreview(previewEl);
+                });
+        });
 
         bgHexInput = bgColorContainer.createEl('input', {
             type: 'text',
@@ -76,6 +127,7 @@ export class ColorSettingsTab extends PluginSettingTab {
             const value = bgHexInput.value;
             if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
                 this.presetStyle.backgroundColor = value;
+                bgColorPicker.setValue(value);
                 this.updatePreview(previewEl);
             }
         });
@@ -85,13 +137,17 @@ export class ColorSettingsTab extends PluginSettingTab {
         const textColorContainer = textColorSetting.controlEl.createDiv('color-container');
         
         let textHexInput: HTMLInputElement;
-        textColorSetting.addColorPicker(color => color
-            .setValue(this.presetStyle.textColor || '#000000')
-            .onChange(value => {
-                this.presetStyle.textColor = value;
-                textHexInput.value = value;
-                this.updatePreview(previewEl);
-            }));
+        let textColorPicker: ColorComponent;
+        textColorSetting.addColorPicker(color => {
+            textColorPicker = color;
+            this.textColorPicker = color;
+            color.setValue(this.presetStyle.textColor || '#000000')
+                .onChange(value => {
+                    this.presetStyle.textColor = value;
+                    textHexInput.value = value;
+                    this.updatePreview(previewEl);
+                });
+        });
 
         textHexInput = textColorContainer.createEl('input', {
             type: 'text',
@@ -102,40 +158,53 @@ export class ColorSettingsTab extends PluginSettingTab {
             const value = textHexInput.value;
             if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
                 this.presetStyle.textColor = value;
+                textColorPicker.setValue(value);
                 this.updatePreview(previewEl);
             }
         });
 
         // Bold toggle
+        let boldToggle: any;
         new Setting(containerEl)
             .setName('Bold')
-            .addToggle(toggle => toggle
-                .setValue(this.presetStyle.isBold || false)
-                .onChange(value => {
-                    this.presetStyle.isBold = value;
-                    this.updatePreview(previewEl);
-                }));
+            .addToggle(toggle => {
+                boldToggle = toggle;
+                this.boldToggle = toggle;
+                toggle.setValue(this.presetStyle.isBold || false)
+                    .onChange(value => {
+                        this.presetStyle.isBold = value;
+                        this.updatePreview(previewEl);
+                    });
+            });
 
         // Italic toggle
+        let italicToggle: any;
         new Setting(containerEl)
             .setName('Italic')
-            .addToggle(toggle => toggle
-                .setValue(this.presetStyle.isItalic || false)
-                .onChange(value => {
-                    this.presetStyle.isItalic = value;
-                    this.updatePreview(previewEl);
-                }));
+            .addToggle(toggle => {
+                italicToggle = toggle;
+                this.italicToggle = toggle;
+                toggle.setValue(this.presetStyle.isItalic || false)
+                    .onChange(value => {
+                        this.presetStyle.isItalic = value;
+                        this.updatePreview(previewEl);
+                    });
+            });
 
         // Opacity
+        let opacitySlider: any;
         new Setting(containerEl)
             .setName('Opacity')
-            .addSlider(slider => slider
-                .setLimits(0, 1, 0.1)
-                .setValue(this.presetStyle.opacity || 1)
-                .onChange(value => {
-                    this.presetStyle.opacity = value;
-                    this.updatePreview(previewEl);
-                }));
+            .addSlider(slider => {
+                opacitySlider = slider;
+                this.opacitySlider = slider;
+                slider.setLimits(0, 1, 0.1)
+                    .setValue(this.presetStyle.opacity || 1)
+                    .onChange(value => {
+                        this.presetStyle.opacity = value;
+                        this.updatePreview(previewEl);
+                    });
+            });
 
         // Save preset section with name input and buttons
         let textComponent: TextComponent;
@@ -150,7 +219,13 @@ export class ColorSettingsTab extends PluginSettingTab {
                 .setButtonText('Reset')
                 .onClick(() => {
                     this.resetPresetStyle();
-                    this.display();
+                    this.updatePreview(previewEl);
+                    // Update all controls
+                    bgColorPicker.setValue(this.presetStyle.backgroundColor || '#ffffff');
+                    textColorPicker.setValue(this.presetStyle.textColor || '#000000');
+                    boldToggle.setValue(this.presetStyle.isBold || false);
+                    italicToggle.setValue(this.presetStyle.isItalic || false);
+                    opacitySlider.setValue(this.presetStyle.opacity || 1);
                 }))
             .addButton(button => button
                 .setButtonText('Save')
@@ -230,6 +305,7 @@ export class ColorSettingsTab extends PluginSettingTab {
             });
             
             const previewEl = presetContainer.createDiv('preview-item');
+            previewEl.setAttribute('data-path', `preset-${name}`);
             previewEl.createSpan().setText(name);
             this.updatePreview(previewEl, preset);
 
@@ -319,16 +395,53 @@ export class ColorSettingsTab extends PluginSettingTab {
     }
 
     private updatePreview(previewEl: HTMLElement, style: StyleSettings = this.presetStyle) {
-        // Reset classes
-        previewEl.removeClass('is-bold', 'is-italic');
-        
-        // Apply classes based on style
-        if (style.isBold) previewEl.addClass('is-bold');
-        if (style.isItalic) previewEl.addClass('is-italic');
+        const path = previewEl.getAttribute('data-path');
+        if (!path || !style) return;
 
-        // Update CSS custom properties
-        previewEl.style.setProperty('--preview-bg-color', style.backgroundColor || null);
-        previewEl.style.setProperty('--preview-text-color', style.textColor || null);
-        previewEl.style.setProperty('--preview-opacity', style.opacity?.toString() || null);
+        // Update base styles
+        if (style.backgroundColor) {
+            previewEl.style.backgroundColor = style.backgroundColor;
+            previewEl.style.transition = 'background-color 0.1s ease';
+        }
+        if (style.textColor) {
+            previewEl.style.color = style.textColor;
+        }
+        if (style.isBold) {
+            previewEl.style.fontWeight = 'bold';
+        }
+        if (style.isItalic) {
+            previewEl.style.fontStyle = 'italic';
+        }
+        if (typeof style.opacity === 'number') {
+            previewEl.style.opacity = String(style.opacity);
+        }
+
+        // Update hover styles
+        if (style.backgroundColor) {
+            const rules = `
+                /* Light mode: lighten on hover */
+                body.theme-light .preview-item[data-path="${path}"]:hover {
+                    background-color: color-mix(in srgb, white 20%, ${style.backgroundColor}) !important;
+                    ${typeof style.opacity === 'number' ? `opacity: ${Math.min(1, style.opacity + 0.15)} !important;` : ''}
+                }
+
+                /* Dark mode: darken on hover */
+                body.theme-dark .preview-item[data-path="${path}"]:hover {
+                    background-color: color-mix(in srgb, black 20%, ${style.backgroundColor}) !important;
+                    ${typeof style.opacity === 'number' ? `opacity: ${Math.min(1, style.opacity + 0.15)} !important;` : ''}
+                }
+            `;
+
+            // Append to style element
+            this.styleEl.textContent += rules;
+        }
     }
+
+    // Properties for control references
+    private bgColorPicker: ColorComponent;
+    private textColorPicker: ColorComponent;
+    private boldToggle: any;
+    private italicToggle: any;
+    private opacitySlider: any;
 }
+

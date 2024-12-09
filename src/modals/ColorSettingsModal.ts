@@ -27,17 +27,13 @@ export class ColorSettingsModal extends Modal {
     onOpen() {
         this.modalEl.addClass('color-folders-files-modal');
         
-        // Create style element for preview styles
-        this.styleEl = document.createElement('style');
-        document.head.appendChild(this.styleEl);
-        
         const {contentEl} = this;
         contentEl.empty();
 
         // Preview section
         const previewSection = contentEl.createDiv('preview-section');
         this.previewEl = previewSection.createDiv('preview-item');
-        this.previewEl.addClass('preview-style');
+        this.previewEl.setAttribute('data-path', this.filePath);
         const fileName = this.filePath.split('/').pop() || this.filePath;
         this.previewEl.createSpan().setText(fileName);
         this.updatePreview();
@@ -252,20 +248,42 @@ export class ColorSettingsModal extends Modal {
     }
 
     updatePreview() {
-        // Reset classes
-        this.previewEl.removeClass('is-bold', 'is-italic');
-        
-        // Add style classes based on current settings
-        if (this.style.isBold) this.previewEl.addClass('is-bold');
-        if (this.style.isItalic) this.previewEl.addClass('is-italic');
+        // Remove old hover styles
+        if (this.styleEl) {
+            this.styleEl.remove();
+        }
 
-        // Update the style element with dynamic styles
-        const css = `.preview-style {
-            ${this.style.backgroundColor ? `background-color: ${this.style.backgroundColor};` : ''}
-            ${this.style.textColor ? `color: ${this.style.textColor};` : ''}
-            ${this.style.opacity !== undefined ? `opacity: ${this.style.opacity};` : ''}
-        }`;
-        this.styleEl.textContent = css;
+        // Create new style element
+        this.styleEl = document.createElement('style');
+        const rules: string[] = [];
+
+        if (this.style.backgroundColor) {
+            rules.push(`
+                .preview-item[data-path="${this.filePath}"] {
+                    background-color: ${this.style.backgroundColor} !important;
+                    transition: background-color 0.1s ease !important;
+                    ${this.style.textColor ? `color: ${this.style.textColor} !important;` : ''}
+                    ${this.style.isBold ? 'font-weight: bold !important;' : ''}
+                    ${this.style.isItalic ? 'font-style: italic !important;' : ''}
+                    ${typeof this.style.opacity === 'number' ? `opacity: ${this.style.opacity} !important;` : ''}
+                }
+
+                /* Light mode: lighten on hover */
+                body.theme-light .preview-item[data-path="${this.filePath}"]:hover {
+                    background-color: color-mix(in srgb, white 20%, ${this.style.backgroundColor}) !important;
+                    ${typeof this.style.opacity === 'number' ? `opacity: ${Math.min(1, this.style.opacity + 0.15)} !important;` : ''}
+                }
+
+                /* Dark mode: darken on hover */
+                body.theme-dark .preview-item[data-path="${this.filePath}"]:hover {
+                    background-color: color-mix(in srgb, black 20%, ${this.style.backgroundColor}) !important;
+                    ${typeof this.style.opacity === 'number' ? `opacity: ${Math.min(1, this.style.opacity + 0.15)} !important;` : ''}
+                }
+            `);
+        }
+
+        this.styleEl.textContent = rules.join('\n');
+        document.head.appendChild(this.styleEl);
     }
 
     async saveChanges() {
@@ -274,9 +292,8 @@ export class ColorSettingsModal extends Modal {
     }
 
     onClose() {
-        // Clean up the style element
-        if (this.styleEl && this.styleEl.parentNode) {
-            this.styleEl.parentNode.removeChild(this.styleEl);
+        if (this.styleEl) {
+            this.styleEl.remove();
         }
         this.modalEl.removeClass('color-folders-files-modal');
         const {contentEl} = this;

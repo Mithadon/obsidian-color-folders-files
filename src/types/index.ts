@@ -1,3 +1,5 @@
+import { EventRef } from 'obsidian';
+
 export interface ColorFolderSettings {
     styles: {
         [path: string]: StyleSettings
@@ -25,4 +27,5 @@ export interface ColorFolderPluginInterface {
     };
     saveSettings(): Promise<void>;
     confirmOverwritePreset(name: string): Promise<boolean>;
+    registerEvent(event: EventRef): void;
 }

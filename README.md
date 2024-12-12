@@ -73,6 +73,13 @@ for example: \vault\.obsidian\plugins\color-folders-files
 4. Install the plugin
 5. Enable the plugin in the Community Plugins tab
 
+
+## Future improvements
+1. Apply opacity only to background (not to text, icon, or arrows)
+2. Fix bug where changing a parent folder without "apply to subfolders" removes styling from subfolders. 
+3. Apply to subfolders should apply once, not in perpetuity. *Debatable
+4. Fix bug where modal preview does not update if only text color is changed
+
 ## Support
 
 If you find this plugin helpful and would like to support its development:

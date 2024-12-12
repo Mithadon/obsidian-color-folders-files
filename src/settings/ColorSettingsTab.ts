@@ -327,13 +327,13 @@ export class ColorSettingsTab extends PluginSettingTab {
         });
 
         // Import/Export section
-        new Setting(containerEl).setHeading().setName('Import/Export Settings');
+        new Setting(containerEl).setHeading().setName('Import/export');
         
         const importExportContainer = containerEl.createDiv('settings-import-export');
         
         // Import button
         const importButton = importExportContainer.createEl('button', {
-            text: 'Import Settings'
+            text: 'Import'
         });
         importButton.addEventListener('click', async () => {
             const input = document.createElement('input');
@@ -373,7 +373,7 @@ export class ColorSettingsTab extends PluginSettingTab {
 
         // Export button
         const exportButton = importExportContainer.createEl('button', {
-            text: 'Export Settings'
+            text: 'Export'
         });
         exportButton.addEventListener('click', () => {
             const settingsJson = JSON.stringify(this.plugin.settings, null, 2);

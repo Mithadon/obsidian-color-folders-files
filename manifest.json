@@ -1,8 +1,8 @@
 {
 	"id": "color-folders-files",
 	"name": "Color Folders and Files",
-	"version": "1.4.0",
-	"minAppVersion": "1.4.0",
+	"version": "1.4.1",
+	"minAppVersion": "1.4.1",
 	"description": "Customize the appearance of folders and files in the file explorer.",
 	"author": "Mithadon",
     "authorUrl": "https://github.com/Mithadon",
